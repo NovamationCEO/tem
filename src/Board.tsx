@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { SIZE, coordToIndex } from './game/coords.ts'
+import { useRef, useState } from 'react'
+import { SIZE, coordToIndex, indexToCoord } from './game/coords.ts'
 import type { GameState } from './game/state.ts'
 
 interface BoardProps {
@@ -7,14 +7,63 @@ interface BoardProps {
   onCellClick: (index: number) => void
 }
 
+const clamp = (v: number) => Math.min(SIZE - 1, Math.max(0, v))
+
+function keyToDelta(key: string): [number, number, number] | null {
+  switch (key) {
+    case 'ArrowLeft':
+      return [-1, 0, 0]
+    case 'ArrowRight':
+      return [1, 0, 0]
+    case 'ArrowUp':
+      return [0, -1, 0]
+    case 'ArrowDown':
+      return [0, 1, 0]
+    case 'PageUp':
+    case '[':
+      return [0, 0, -1]
+    case 'PageDown':
+    case ']':
+      return [0, 0, 1]
+    default:
+      return null
+  }
+}
+
 export function Board({ state, onCellClick }: BoardProps) {
   // Hovered (x, y) position, highlighted on every layer so vertical and
   // cross-layer lines are legible.
   const [hovered, setHovered] = useState<{ x: number; y: number } | null>(null)
+  // Roving tabindex: the whole board is a single tab stop; arrows and
+  // PageUp/PageDown (or [ and ]) move focus between cells and layers.
+  const [focused, setFocused] = useState(0)
+  const cellRefs = useRef<(HTMLButtonElement | null)[]>([])
 
   const playing = state.status.kind === 'playing'
   const winningCells =
     state.status.kind === 'won' ? new Set(state.status.line) : null
+
+  function handleKeyDown(event: React.KeyboardEvent, from: number) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      // Explicit activation (with preventDefault so native activation can't
+      // double-fire) — keeps Enter and Space on a single code path.
+      event.preventDefault()
+      onCellClick(from)
+      return
+    }
+    const delta = keyToDelta(event.key)
+    if (!delta) return
+    event.preventDefault()
+    const [dx, dy, dz] = delta
+    const c = indexToCoord(from)
+    const target = coordToIndex({
+      x: clamp(c.x + dx),
+      y: clamp(c.y + dy),
+      z: clamp(c.z + dz),
+    })
+    setFocused(target)
+    cellRefs.current[target]?.focus()
+  }
 
   return (
     <div className="board">
@@ -34,10 +83,7 @@ export function Board({ state, onCellClick }: BoardProps) {
                 cell === 2 && 'p2',
                 winningCells?.has(index) && 'win',
                 winningCells && !winningCells.has(index) && 'dim',
-                playing &&
-                  hovered?.x === x &&
-                  hovered?.y === y &&
-                  'hl',
+                playing && hovered?.x === x && hovered?.y === y && 'hl',
               ]
                 .filter(Boolean)
                 .join(' ')
@@ -50,6 +96,9 @@ export function Board({ state, onCellClick }: BoardProps) {
               return (
                 <button
                   key={index}
+                  ref={(el) => {
+                    cellRefs.current[index] = el
+                  }}
                   type="button"
                   className={classes}
                   // Occupied cells stay enabled while playing so hover events
@@ -58,9 +107,14 @@ export function Board({ state, onCellClick }: BoardProps) {
                   disabled={!playing}
                   aria-disabled={cell !== null || !playing}
                   aria-label={label}
+                  tabIndex={index === focused ? 0 : -1}
                   onClick={() => onCellClick(index)}
+                  onKeyDown={(event) => handleKeyDown(event, index)}
                   onMouseEnter={() => setHovered({ x, y })}
-                  onFocus={() => setHovered({ x, y })}
+                  onFocus={() => {
+                    setFocused(index)
+                    setHovered({ x, y })
+                  }}
                   onBlur={() => setHovered(null)}
                 >
                   {contents}

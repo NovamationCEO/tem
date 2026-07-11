@@ -129,7 +129,7 @@ Deps: T7.**
 cross-board space-diagonal win (the hard-to-see case — this is the UX we're
 proving); reset works mid-game and post-game. **Est: S. Deps: T8, T9.**
 
-### T11. Keyboard navigation and a11y pass
+### T11. Keyboard navigation and a11y pass ✅ done
 - Arrow keys move focus within a layer; PageUp/PageDown (or [ / ]) move
   between layers; Enter/Space places a mark.
 - `aria-label` per cell ("layer 2, row 1, column 3, empty"); status bar is an
@@ -142,7 +142,7 @@ announces moves and the result. **Est: M. Deps: T8.**
 
 ## Epic 3 — Wrap-up
 
-### T12. Docs and deploy readiness
+### T12. Docs and deploy readiness ✅ done
 - Update `CLAUDE.md` (game rules now defined — 4×4×4, 76 lines, coordinate
   convention) and `README.md` (what the game is, how to run/test).
 - Verify `npm run build` output works via `npm run preview` (static-host
