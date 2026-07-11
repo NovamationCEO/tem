@@ -66,7 +66,7 @@ where player 1 completes that line and assert the win and the reported line;
 draw test with a known full non-winning board; test that a win on the 64th
 move reports win, not draw. **Est: M. Deps: T2, T3.**
 
-### T5. Cell/line queries for the UI
+### T5. Cell/line queries for the UI ✅ done
 - `winningLine(state): number[] | null`
 - `linesThrough(index): number[][]` (thin wrapper over `LINES_BY_CELL`).
 - Stretch (only if sprint is ahead): `threats(state, player)` — lines with
@@ -78,7 +78,7 @@ move reports win, not draw. **Est: M. Deps: T2, T3.**
 
 ## Epic 2 — Flat-grid UI (React, `src/`)
 
-### T6. Remove scaffold, app shell
+### T6. Remove scaffold, app shell ✅ done
 - Delete Vite demo content from `App.tsx`, `App.css`, unused assets
   (`hero.png`, logos), and the icons/links sections.
 - App shell: title bar, main board area, status bar (whose turn / result),
@@ -89,7 +89,7 @@ move reports win, not draw. **Est: M. Deps: T2, T3.**
 **Accept:** app renders shell with empty board state; lint/build clean with
 no leftover scaffold imports. **Est: S. Deps: T1.**
 
-### T7. Board rendering — four layer grids
+### T7. Board rendering — four layer grids ✅ done
 - `<Board>` renders four `<LayerGrid z={0..3}>` side by side (wrap 2×2 under
   ~700 px). Each layer labeled (z = 0–3).
 - Each cell is a real `<button>` (44 px+ touch target) showing ⨯ / ◯ or empty.
@@ -101,7 +101,7 @@ no leftover scaffold imports. **Est: S. Deps: T1.**
 **Accept:** 64 buttons render; marks appear per state; renders correctly at
 mobile width. **Est: M. Deps: T6.**
 
-### T8. Move input and turn flow
+### T8. Move input and turn flow ✅ done
 - Click empty cell → `applyMove`; occupied cells / finished game are no-ops
   (button `disabled` + `aria-disabled`).
 - Status bar shows current player with their color; after game over, shows
@@ -110,7 +110,7 @@ mobile width. **Est: M. Deps: T6.**
 **Accept:** full hot-seat game playable by clicking; illegal clicks do
 nothing; manual playthrough of a known win line works. **Est: S. Deps: T3, T7.**
 
-### T9. Cross-layer highlight (the option-A signature feature)
+### T9. Cross-layer highlight (the option-A signature feature) ✅ done
 - Hovering (or keyboard-focusing) a cell highlights the same `(x,y)` cell on
   all four layers — this is what makes vertical/cross-board lines legible.
 - Touch devices: skip hover, no degradation.
@@ -119,7 +119,7 @@ nothing; manual playthrough of a known win line works. **Est: S. Deps: T3, T7.**
 highlight clears on leave; no highlight while a win is displayed. **Est: S.
 Deps: T7.**
 
-### T10. Win/draw presentation
+### T10. Win/draw presentation ✅ done
 - On win: the four winning cells highlighted (use `status.line` from T4),
   other cells dimmed, input blocked, status bar announces winner.
 - On draw: status bar announces draw.
