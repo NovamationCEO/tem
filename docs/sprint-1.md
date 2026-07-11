@@ -44,7 +44,7 @@ from the design conversation each appear: `[0,0,0]→[3,3,3]` space diagonal,
 `[0,1,0]→[0,1,3]` axis line, `[0,0,0]→[3,0,3]` plane diagonal; every cell
 appears in at least 7 lines; no duplicate lines. **Est: M. Deps: T1.**
 
-### T3. Move application
+### T3. Move application ✅ done
 - `applyMove(state, index): GameState` — returns a new state (no mutation).
   Rejects (returns state unchanged, or a typed error result — decide in
   implementation review) when: cell occupied, game already won/drawn, index
@@ -55,7 +55,7 @@ appears in at least 7 lines; no duplicate lines. **Est: M. Deps: T1.**
 **Accept:** tests for legal move, occupied cell, move after game over,
 alternation across a sequence of moves. **Est: S. Deps: T1.**
 
-### T4. Win and draw detection
+### T4. Win and draw detection ✅ done
 - After a move at cell `i`, check only `LINES_BY_CELL[i]` (not all 76 lines).
 - Win → `status = { kind: 'won', winner, line }` where `line` is the four
   winning cell indices (UI needs it for highlighting).
@@ -171,8 +171,8 @@ desired, since it only needs T1's types.
 
 ## Risks / open decisions
 
-- **Reject style for illegal moves (T3):** silent no-op vs. typed result.
-  Leaning silent no-op for hot-seat (misclicks are obvious); revisit for
+- **Reject style for illegal moves (T3):** decided — silent no-op (returns the
+  same state reference). Misclicks are obvious in hot-seat play; revisit for
   online play where a rejected move must be signaled.
 - **Layer arrangement (T7):** side-by-side row vs. 2×2 grid vs. the old
   diagonal stack — decide with real rendering in front of us; cheap to change.
