@@ -2,8 +2,12 @@
 
 A web-based game for up to two players who alternate choosing moves until one wins.
 Runs entirely in the browser (front-end only) so it can be hosted as static files
-(GitHub Pages / Cloudflare Pages / Netlify) with no server. Game rules are not yet
-defined — the current game module is a placeholder turn-alternation core.
+(GitHub Pages / Cloudflare Pages / Netlify) with no server.
+
+The game is Qubic: 4×4×4 tic-tac-toe, win = any 4 in a row (76 winning lines,
+including plane diagonals and the 4 space diagonals). Current focus: hot-seat
+play with the flat four-layer-grid UI ("option A"). Online multiplayer and a 3D
+companion view are planned for later. Sprint plan: `docs/sprint-1.md`.
 
 ## Stack
 
