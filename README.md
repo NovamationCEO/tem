@@ -11,6 +11,11 @@ easy to read. Fully playable with the keyboard: Tab to the board, arrows to
 move within a layer, `[` / `]` (or PageUp/PageDown) to switch layers,
 Enter/Space to place a mark.
 
+Undo steps back one move at a time (including out of a finished game). The
+"Show threats" toggle marks every empty cell that would complete four-in-a-row
+with a dot in the threatening player's color — handy while learning, off by
+default; the preference is remembered.
+
 Runs entirely in the browser — no server, no accounts. `npm run build` emits
 static files deployable to any static host.
 

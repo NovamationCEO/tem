@@ -6,9 +6,10 @@ Runs entirely in the browser (front-end only) so it can be hosted as static file
 
 The game is Qubic: 4×4×4 tic-tac-toe, win = any 4 in a row (76 winning lines,
 including plane diagonals and the 4 space diagonals). Hot-seat play with the
-flat four-layer-grid UI ("option A") is complete — see `docs/sprint-1.md` (all
-tickets done). Online multiplayer and a 3D companion view are planned for
-later. Coordinate convention: flat board index = x + 4y + 16z, where z selects
+flat four-layer-grid UI ("option A") is complete — see `docs/sprint-1.md`.
+Sprint 2 (`docs/sprint-2.md`) added an undo stack (`src/game/history.ts`) and
+a toggleable threat-highlighting option. Online multiplayer and a 3D companion
+view are planned for later. Coordinate convention: flat board index = x + 4y + 16z, where z selects
 the layer grid; all 76 lines are generated programmatically in
 `src/game/lines.ts` (never hand-typed).
 

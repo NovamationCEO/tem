@@ -16,7 +16,27 @@
   font-size: 1.6rem;
 }
 
-.new-game {
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle input {
+  accent-color: var(--p1);
+}
+
+.btn {
   font: inherit;
   color: var(--text-h);
   background: var(--cell-bg);
@@ -26,8 +46,13 @@
   cursor: pointer;
 }
 
-.new-game:hover {
+.btn:hover:not(:disabled) {
   border-color: var(--text);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .status {
@@ -127,7 +152,27 @@
 }
 
 .cell:focus-visible,
-.new-game:focus-visible {
+.btn:focus-visible,
+.toggle input:focus-visible {
   outline: 2px solid var(--p1);
   outline-offset: 2px;
+}
+
+.threat-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.threat-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.threat-dot.p1 {
+  background: var(--p1);
+}
+
+.threat-dot.p2 {
+  background: var(--p2);
 }

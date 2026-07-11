@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react'
 import { SIZE, coordToIndex, indexToCoord } from './game/coords.ts'
-import type { GameState } from './game/state.ts'
+import type { GameState, Player } from './game/state.ts'
 
 interface BoardProps {
   state: GameState
+  /** Empty cells that complete four-in-a-row, by threatening player. */
+  threats?: ReadonlyMap<number, readonly Player[]>
   onCellClick: (index: number) => void
 }
 
@@ -30,7 +32,7 @@ function keyToDelta(key: string): [number, number, number] | null {
   }
 }
 
-export function Board({ state, onCellClick }: BoardProps) {
+export function Board({ state, threats, onCellClick }: BoardProps) {
   // Hovered (x, y) position, highlighted on every layer so vertical and
   // cross-layer lines are legible.
   const [hovered, setHovered] = useState<{ x: number; y: number } | null>(null)
@@ -88,10 +90,31 @@ export function Board({ state, onCellClick }: BoardProps) {
                 .filter(Boolean)
                 .join(' ')
 
-              const contents = cell === 1 ? '✕' : cell === 2 ? '○' : ''
+              const threatPlayers =
+                cell === null ? (threats?.get(index) ?? []) : []
+              const contents =
+                cell === 1 ? (
+                  '✕'
+                ) : cell === 2 ? (
+                  '○'
+                ) : threatPlayers.length > 0 ? (
+                  <span className="threat-dots" aria-hidden="true">
+                    {threatPlayers.map((p) => (
+                      <span key={p} className={`threat-dot p${p}`} />
+                    ))}
+                  </span>
+                ) : (
+                  ''
+                )
+              const threatNote =
+                threatPlayers.length > 0
+                  ? `, winning move for ${threatPlayers
+                      .map((p) => `player ${p}`)
+                      .join(' and ')}`
+                  : ''
               const label = `Layer ${z + 1}, row ${y + 1}, column ${x + 1}: ${
                 cell === null ? 'empty' : `player ${cell}`
-              }`
+              }${threatNote}`
 
               return (
                 <button

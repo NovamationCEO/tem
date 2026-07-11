@@ -1,20 +1,74 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Board } from './Board.tsx'
-import { applyMove } from './game/moves.ts'
-import { newGame } from './game/state.ts'
+import {
+  canUndo,
+  currentState,
+  newHistory,
+  pushMove,
+  undo,
+} from './game/history.ts'
+import { threats } from './game/queries.ts'
+import type { Player } from './game/state.ts'
 import './App.css'
 
+const THREATS_KEY = 'tem.showThreats'
+
 function App() {
-  const [game, setGame] = useState(newGame)
+  const [history, setHistory] = useState(newHistory)
+  const [showThreats, setShowThreats] = useState(
+    () => localStorage.getItem(THREATS_KEY) === '1',
+  )
+  const game = currentState(history)
+
+  const threatMap = useMemo(() => {
+    const map = new Map<number, Player[]>()
+    if (!showThreats) return map
+    for (const threat of threats(game)) {
+      const players = map.get(threat.cell) ?? []
+      if (!players.includes(threat.player)) {
+        map.set(threat.cell, [...players, threat.player])
+      }
+    }
+    return map
+  }, [game, showThreats])
+
+  function toggleThreats() {
+    setShowThreats((shown) => {
+      localStorage.setItem(THREATS_KEY, shown ? '0' : '1')
+      return !shown
+    })
+  }
 
   const status = game.status
   return (
     <main className="app">
       <header className="top">
         <h1>tem</h1>
-        <button type="button" className="new-game" onClick={() => setGame(newGame())}>
-          New game
-        </button>
+        <div className="controls">
+          <label className="toggle">
+            <input
+              type="checkbox"
+              checked={showThreats}
+              onChange={toggleThreats}
+            />
+            Show threats
+          </label>
+          <button
+            type="button"
+            className="btn"
+            disabled={!canUndo(history)}
+            onClick={() => setHistory(undo)}
+          >
+            Undo
+          </button>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setHistory(newHistory())}
+          >
+            New game
+          </button>
+        </div>
       </header>
 
       <p
@@ -33,7 +87,8 @@ function App() {
 
       <Board
         state={game}
-        onCellClick={(index) => setGame((g) => applyMove(g, index))}
+        threats={threatMap}
+        onCellClick={(index) => setHistory((h) => pushMove(h, index))}
       />
     </main>
   )
