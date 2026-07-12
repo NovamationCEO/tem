@@ -46,6 +46,22 @@
   cursor: pointer;
 }
 
+.select {
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--text-h);
+  background: var(--cell-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+}
+
+.select:focus-visible {
+  outline: 2px solid var(--p1);
+  outline-offset: 2px;
+}
+
 .btn:hover:not(:disabled) {
   border-color: var(--text);
 }

@@ -25,6 +25,12 @@ space. You can play in either view: clicking a cell in the cube places a mark
 (a ghost preview shows where), with the flat grids as the keyboard-accessible
 equivalent.
 
+Play against another person on the same screen, or against the computer at
+four difficulty levels (Beginner to Expert). The computer opponent is a
+weighted-line heuristic that takes wins, blocks threats, and hunts double
+threats; lower levels miss things on purpose. See `docs/ai-options.md` for
+the AI roadmap.
+
 Undo steps back one move at a time (including out of a finished game). The
 "Show threats" toggle marks every empty cell that would complete four-in-a-row
 with a dot in the threatening player's color — handy while learning, off by
