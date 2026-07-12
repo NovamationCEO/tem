@@ -11,6 +11,12 @@ easy to read. Fully playable with the keyboard: Tab to the board, arrows to
 move within a layer, `[` / `]` (or PageUp/PageDown) to switch layers,
 Enter/Space to place a mark.
 
+A rotatable WebGL view of the cube sits beside the flat grids: drag to orbit,
+scroll to zoom, and use the "Spread layers" slider to pull the four layers
+apart and see interior cells. It mirrors the game live — hovering a flat-grid
+cell highlights the matching column in 3D, and wins draw a line through the
+four cells in space. Input stays on the flat grids.
+
 Undo steps back one move at a time (including out of a finished game). The
 "Show threats" toggle marks every empty cell that would complete four-in-a-row
 with a dot in the threatening player's color — handy while learning, off by

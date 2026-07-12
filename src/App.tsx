@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Board } from './Board.tsx'
+import { Cube3D } from './Cube3D.tsx'
 import {
   canUndo,
   currentState,
@@ -18,6 +19,7 @@ function App() {
   const [showThreats, setShowThreats] = useState(
     () => localStorage.getItem(THREATS_KEY) === '1',
   )
+  const [hovered, setHovered] = useState<{ x: number; y: number } | null>(null)
   const game = currentState(history)
 
   const threatMap = useMemo(() => {
@@ -85,11 +87,16 @@ function App() {
         {status.kind === 'draw' && <>Draw — the board is full.</>}
       </p>
 
-      <Board
-        state={game}
-        threats={threatMap}
-        onCellClick={(index) => setHistory((h) => pushMove(h, index))}
-      />
+      <div className="views">
+        <Board
+          state={game}
+          threats={threatMap}
+          hovered={hovered}
+          onHover={setHovered}
+          onCellClick={(index) => setHistory((h) => pushMove(h, index))}
+        />
+        <Cube3D state={game} hovered={hovered} />
+      </div>
     </main>
   )
 }

@@ -83,10 +83,45 @@
   background: var(--p2);
 }
 
+.views {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .views {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .board {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.25rem;
+}
+
+.cube3d-canvas {
+  height: 440px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--cell-bg);
+  overflow: hidden;
+}
+
+.spread {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  user-select: none;
+}
+
+.spread input {
+  flex: 1;
+  accent-color: var(--p1);
 }
 
 .layer-label {

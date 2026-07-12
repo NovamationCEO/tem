@@ -6,6 +6,9 @@ interface BoardProps {
   state: GameState
   /** Empty cells that complete four-in-a-row, by threatening player. */
   threats?: ReadonlyMap<number, readonly Player[]>
+  /** Hovered (x, y), shared with the 3D view; highlighted on every layer. */
+  hovered: { x: number; y: number } | null
+  onHover: (position: { x: number; y: number } | null) => void
   onCellClick: (index: number) => void
 }
 
@@ -32,10 +35,13 @@ function keyToDelta(key: string): [number, number, number] | null {
   }
 }
 
-export function Board({ state, threats, onCellClick }: BoardProps) {
-  // Hovered (x, y) position, highlighted on every layer so vertical and
-  // cross-layer lines are legible.
-  const [hovered, setHovered] = useState<{ x: number; y: number } | null>(null)
+export function Board({
+  state,
+  threats,
+  hovered,
+  onHover,
+  onCellClick,
+}: BoardProps) {
   // Roving tabindex: the whole board is a single tab stop; arrows and
   // PageUp/PageDown (or [ and ]) move focus between cells and layers.
   const [focused, setFocused] = useState(0)
@@ -72,7 +78,7 @@ export function Board({ state, threats, onCellClick }: BoardProps) {
       {Array.from({ length: SIZE }, (_, z) => (
         <section key={z} aria-label={`Layer ${z + 1}`}>
           <h2 className="layer-label">Layer {z + 1}</h2>
-          <div className="grid" onMouseLeave={() => setHovered(null)}>
+          <div className="grid" onMouseLeave={() => onHover(null)}>
             {Array.from({ length: SIZE * SIZE }, (_, i) => {
               const x = i % SIZE
               const y = Math.floor(i / SIZE)
@@ -133,12 +139,12 @@ export function Board({ state, threats, onCellClick }: BoardProps) {
                   tabIndex={index === focused ? 0 : -1}
                   onClick={() => onCellClick(index)}
                   onKeyDown={(event) => handleKeyDown(event, index)}
-                  onMouseEnter={() => setHovered({ x, y })}
+                  onMouseEnter={() => onHover({ x, y })}
                   onFocus={() => {
                     setFocused(index)
-                    setHovered({ x, y })
+                    onHover({ x, y })
                   }}
-                  onBlur={() => setHovered(null)}
+                  onBlur={() => onHover(null)}
                 >
                   {contents}
                 </button>
