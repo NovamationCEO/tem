@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { LAYER_COLORS } from './colors.ts'
+import { EMPTY_RAMP } from './colors.ts'
 import { SIZE, coordToIndex, indexToCoord } from './game/coords.ts'
 import type { GameState, Player } from './game/state.ts'
 
@@ -84,7 +84,7 @@ export function Board({
           <h2 className="layer-label">
             <span
               className="layer-swatch"
-              style={{ background: LAYER_COLORS[z] }}
+              style={{ background: EMPTY_RAMP[z] }}
               aria-hidden="true"
             />
             Layer {z + 1}

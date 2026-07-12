@@ -2,13 +2,10 @@ import { Line, OrbitControls, useCursor } from '@react-three/drei'
 import { Canvas, useThree } from '@react-three/fiber'
 import { useEffect, useState } from 'react'
 import { DoubleSide } from 'three'
-import { LAYER_COLORS } from './colors.ts'
+import { EMPTY_RAMP, P1_RAMP, P2_RAMP } from './colors.ts'
 import { SIZE, indexToCoord } from './game/coords.ts'
 import type { GameState } from './game/state.ts'
 
-// Mid-ramp colors that read on both light and dark canvas backgrounds.
-const P1_COLOR = '#8b5cf6'
-const P2_COLOR = '#14b8a6'
 const WIN_COLOR = '#22c55e'
 const SPACING = 1.2
 
@@ -72,10 +69,10 @@ export function Cube3D({ state, hovered, onHover, onCellClick }: Cube3DProps) {
             const color = isWin
               ? WIN_COLOR
               : mark === 1
-                ? P1_COLOR
+                ? P1_RAMP[z]
                 : mark === 2
-                  ? P2_COLOR
-                  : LAYER_COLORS[z]
+                  ? P2_RAMP[z]
+                  : EMPTY_RAMP[z]
             const opacity =
               mark === null
                 ? inHoveredColumn
@@ -91,7 +88,7 @@ export function Cube3D({ state, hovered, onHover, onCellClick }: Cube3DProps) {
                   <mesh>
                     <sphereGeometry args={[0.34, 24, 24]} />
                     <meshStandardMaterial
-                      color={turn === 1 ? P1_COLOR : P2_COLOR}
+                      color={turn === 1 ? P1_RAMP[z] : P2_RAMP[z]}
                       transparent
                       opacity={0.5}
                     />
@@ -169,7 +166,7 @@ function LayerPlatform({ z, spread }: { z: number; spread: number }) {
     <mesh position={[0, y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[size, size]} />
       <meshBasicMaterial
-        color={LAYER_COLORS[z]}
+        color={EMPTY_RAMP[z]}
         transparent
         opacity={0.1}
         depthWrite={false}

@@ -33,3 +33,10 @@ platform plane beneath it, with matching swatches on the flat-grid layer
 labels. The spread slider expands all three axes (extra weight on vertical),
 and the camera auto-pulls back to keep the lattice framed. Browser-verified:
 an interior cell picked by mouse at spread 0.6.
+
+### T24. Lightness ramp instead of layer hues ✅ done
+Feedback on T23: replace the four layer hues with an elevation ramp —
+empty cells fade near-white (top) to dark gray (bottom), and player marks
+use lighter/darker versions of their own color per layer (`src/colors.ts`:
+EMPTY_RAMP / P1_RAMP / P2_RAMP). Platforms and 2D label swatches follow the
+gray ramp. Verified in both light and dark color schemes.

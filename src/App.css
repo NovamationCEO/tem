@@ -140,6 +140,7 @@
   width: 0.7em;
   height: 0.7em;
   border-radius: 3px;
+  border: 1px solid var(--border);
   flex: none;
 }
 
