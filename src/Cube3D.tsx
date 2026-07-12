@@ -10,10 +10,11 @@ const WIN_COLOR = '#22c55e'
 const SPACING = 1.2
 
 /**
- * Board (x, y, z) → scene position. Layers stack vertically (layer 1 at the
- * bottom); `spread` (0–1) expands the whole lattice — every axis grows so
- * sight lines open up for picking, with extra vertical separation so the
- * layers stay visually distinct.
+ * Board (x, y, z) → scene position. Layers stack vertically with layer 1
+ * (z = 0) at the TOP, matching the flat grids' top-to-bottom reading order;
+ * `spread` (0–1) expands the whole lattice — every axis grows so sight lines
+ * open up for picking, with extra vertical separation so the layers stay
+ * visually distinct.
  */
 function cellPosition(
   index: number,
@@ -23,7 +24,7 @@ function cellPosition(
   const off = (SIZE - 1) / 2
   return [
     (x - off) * SPACING * (1 + spread),
-    (z - off) * SPACING * (1 + spread * 1.5),
+    (off - z) * SPACING * (1 + spread * 1.5),
     (y - off) * SPACING * (1 + spread),
   ]
 }
@@ -160,7 +161,7 @@ export function Cube3D({ state, hovered, onHover, onCellClick }: Cube3DProps) {
  */
 function LayerPlatform({ z, spread }: { z: number; spread: number }) {
   const off = (SIZE - 1) / 2
-  const y = (z - off) * SPACING * (1 + spread * 1.5) - 0.45
+  const y = (off - z) * SPACING * (1 + spread * 1.5) - 0.45
   const size = (SIZE - 1) * SPACING * (1 + spread) + 0.9
   return (
     <mesh position={[0, y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
