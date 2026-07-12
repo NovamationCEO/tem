@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Board } from './Board.tsx'
 import { Cube3D } from './Cube3D.tsx'
-import { chooseMove, type Level } from './game/ai/heuristic.ts'
+import { requestMove } from './game/ai/client.ts'
+import type { Level } from './game/ai/heuristic.ts'
 import {
   canUndo,
   currentState,
@@ -50,7 +51,7 @@ function App() {
   useEffect(() => {
     if (!aiToMove) return
     const timer = setTimeout(() => {
-      void chooseMove(game, level).then((move) => {
+      void requestMove(game, level).then((move) => {
         setHistory((h) => (currentState(h) === game ? pushMove(h, move) : h))
       })
     }, 450)

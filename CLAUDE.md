@@ -13,10 +13,11 @@ the WebGL 3D companion view (`src/Cube3D.tsx`, react-three-fiber + drei),
 and sprint 4 (`docs/sprint-4.md`) made it clickable via raycast picking
 (invisible hitboxes, drag-vs-click delta guard, ghost preview). Both views
 accept input and share hover state; the flat grids remain the accessible
-path. Online multiplayer is planned for later. Sprint 5 (`docs/sprint-5.md`)
-added the phase-1 AI opponent: a tiered heuristic with four difficulty
-levels in `src/game/ai/` (seeded RNG, async `chooseMove`). The roadmap in
-`docs/ai-options.md` continues with alpha-beta + bitboards (phase 2) and
+path. Online multiplayer is planned for later. Sprints 5–6 (`docs/sprint-5.md`,
+`docs/sprint-6.md`) added the AI opponent in `src/game/ai/`: levels 1–2 use
+the tiered heuristic (`heuristic.ts`), levels 3–4 use time-budgeted
+alpha-beta (`search.ts`) behind a Web Worker (`client.ts`/`worker.ts`);
+seeded RNG throughout. The roadmap in `docs/ai-options.md` continues with
 threat-space search (phase 3). Coordinate convention: flat board index = x + 4y + 16z, where z selects
 the layer grid; all 76 lines are generated programmatically in
 `src/game/lines.ts` (never hand-typed).

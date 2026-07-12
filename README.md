@@ -26,10 +26,10 @@ space. You can play in either view: clicking a cell in the cube places a mark
 equivalent.
 
 Play against another person on the same screen, or against the computer at
-four difficulty levels (Beginner to Expert). The computer opponent is a
-weighted-line heuristic that takes wins, blocks threats, and hunts double
-threats; lower levels miss things on purpose. See `docs/ai-options.md` for
-the AI roadmap.
+four difficulty levels. Beginner and Casual use a weighted-line heuristic
+that misses things on purpose; Challenging and Expert run an alpha-beta
+search (in a Web Worker, so the UI never stutters) that hunts forced
+sequences of threats. See `docs/ai-options.md` for the AI roadmap.
 
 Undo steps back one move at a time (including out of a finished game). The
 "Show threats" toggle marks every empty cell that would complete four-in-a-row
