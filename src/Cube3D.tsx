@@ -1,6 +1,6 @@
-import { Line, OrbitControls } from '@react-three/drei'
+import { Line, OrbitControls, useCursor } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { SIZE, indexToCoord } from './game/coords.ts'
 import type { GameState } from './game/state.ts'
 
@@ -30,14 +30,32 @@ function cellPosition(
 
 interface Cube3DProps {
   state: GameState
-  /** Hovered (x, y) from the flat grids — highlights the vertical column. */
+  /** Hovered (x, y) shared with the flat grids — highlights the column. */
   hovered: { x: number; y: number } | null
+  onHover: (position: { x: number; y: number } | null) => void
+  onCellClick: (index: number) => void
 }
 
-export function Cube3D({ state, hovered }: Cube3DProps) {
+export function Cube3D({ state, hovered, onHover, onCellClick }: Cube3DProps) {
   const [spread, setSpread] = useState(0)
+  const [hoveredCell, setHoveredCell] = useState<number | null>(null)
+
+  const playing = state.status.kind === 'playing'
+  const turn = state.status.kind === 'playing' ? state.status.turn : null
   const winning = state.status.kind === 'won' ? state.status.line : null
   const winningSet = winning ? new Set(winning) : null
+
+  // Feed the cube's own hover into the shared column highlight, exactly like
+  // hovering a flat-grid cell. An effect (rather than pointer-out handlers)
+  // avoids out/over ordering races when sliding between cells.
+  useEffect(() => {
+    if (hoveredCell === null) {
+      onHover(null)
+    } else {
+      const { x, y } = indexToCoord(hoveredCell)
+      onHover({ x, y })
+    }
+  }, [hoveredCell, onHover])
 
   return (
     <div className="cube3d">
@@ -51,6 +69,7 @@ export function Cube3D({ state, hovered }: Cube3DProps) {
             const inHoveredColumn =
               hovered !== null && hovered.x === x && hovered.y === y
             const isWin = winningSet?.has(index) ?? false
+            const isGhost = playing && mark === null && hoveredCell === index
             const color = isWin
               ? WIN_COLOR
               : mark === 1
@@ -66,19 +85,45 @@ export function Cube3D({ state, hovered }: Cube3DProps) {
                 : winningSet && !isWin
                   ? 0.35
                   : 1
+            const position = cellPosition(index, spread)
             return (
-              <mesh key={index} position={cellPosition(index, spread)}>
-                {mark === null ? (
-                  <boxGeometry
-                    args={
-                      inHoveredColumn ? [0.3, 0.3, 0.3] : [0.16, 0.16, 0.16]
-                    }
-                  />
+              <group key={index} position={position}>
+                {isGhost ? (
+                  <mesh>
+                    <sphereGeometry args={[0.34, 24, 24]} />
+                    <meshStandardMaterial
+                      color={turn === 1 ? P1_COLOR : P2_COLOR}
+                      transparent
+                      opacity={0.5}
+                    />
+                  </mesh>
                 ) : (
-                  <sphereGeometry args={[0.34, 24, 24]} />
+                  <mesh>
+                    {mark === null ? (
+                      <boxGeometry
+                        args={
+                          inHoveredColumn ? [0.3, 0.3, 0.3] : [0.16, 0.16, 0.16]
+                        }
+                      />
+                    ) : (
+                      <sphereGeometry args={[0.34, 24, 24]} />
+                    )}
+                    <meshStandardMaterial
+                      color={color}
+                      transparent
+                      opacity={opacity}
+                    />
+                  </mesh>
                 )}
-                <meshStandardMaterial color={color} transparent opacity={opacity} />
-              </mesh>
+                <Hitbox
+                  playing={playing}
+                  onOver={() => setHoveredCell(index)}
+                  onOut={() =>
+                    setHoveredCell((cell) => (cell === index ? null : cell))
+                  }
+                  onPick={() => onCellClick(index)}
+                />
+              </group>
             )
           })}
           {winning && (
@@ -89,6 +134,7 @@ export function Cube3D({ state, hovered }: Cube3DProps) {
             />
           )}
           <OrbitControls enablePan={false} minDistance={5} maxDistance={16} />
+          <CursorHint active={playing && hoveredCell !== null} />
         </Canvas>
       </div>
       <label className="spread">
@@ -104,4 +150,40 @@ export function Cube3D({ state, hovered }: Cube3DProps) {
       </label>
     </div>
   )
+}
+
+interface HitboxProps {
+  playing: boolean
+  onOver: () => void
+  onOut: () => void
+  onPick: () => void
+}
+
+/**
+ * Invisible click/hover target, much larger than the visible cell geometry.
+ * The raycaster returns the nearest hit, so exactly one cell responds.
+ */
+function Hitbox({ playing, onOver, onOut, onPick }: HitboxProps) {
+  return (
+    <mesh
+      onClick={(event) => {
+        event.stopPropagation()
+        // A real click, not the tail end of an orbit drag.
+        if (playing && event.delta <= 5) onPick()
+      }}
+      onPointerOver={(event) => {
+        event.stopPropagation()
+        if (playing) onOver()
+      }}
+      onPointerOut={onOut}
+    >
+      <boxGeometry args={[1, 1, 1]} />
+      <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+    </mesh>
+  )
+}
+
+function CursorHint({ active }: { active: boolean }) {
+  useCursor(active)
+  return null
 }

@@ -9,9 +9,11 @@ including plane diagonals and the 4 space diagonals). Hot-seat play with the
 flat four-layer-grid UI ("option A") is complete — see `docs/sprint-1.md`.
 Sprint 2 (`docs/sprint-2.md`) added an undo stack (`src/game/history.ts`) and
 a toggleable threat-highlighting option. Sprint 3 (`docs/sprint-3.md`) added
-the WebGL 3D companion view (`src/Cube3D.tsx`, react-three-fiber + drei):
-view-only, synced to the same GameState, input stays on the flat grids.
-Online multiplayer is planned for later. Coordinate convention: flat board index = x + 4y + 16z, where z selects
+the WebGL 3D companion view (`src/Cube3D.tsx`, react-three-fiber + drei),
+and sprint 4 (`docs/sprint-4.md`) made it clickable via raycast picking
+(invisible hitboxes, drag-vs-click delta guard, ghost preview). Both views
+accept input and share hover state; the flat grids remain the accessible
+path. Online multiplayer is planned for later. Coordinate convention: flat board index = x + 4y + 16z, where z selects
 the layer grid; all 76 lines are generated programmatically in
 `src/game/lines.ts` (never hand-typed).
 

@@ -95,7 +95,12 @@ function App() {
           onHover={setHovered}
           onCellClick={(index) => setHistory((h) => pushMove(h, index))}
         />
-        <Cube3D state={game} hovered={hovered} />
+        <Cube3D
+          state={game}
+          hovered={hovered}
+          onHover={setHovered}
+          onCellClick={(index) => setHistory((h) => pushMove(h, index))}
+        />
       </div>
     </main>
   )
