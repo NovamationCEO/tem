@@ -40,3 +40,12 @@ empty cells fade near-white (top) to dark gray (bottom), and player marks
 use lighter/darker versions of their own color per layer (`src/colors.ts`:
 EMPTY_RAMP / P1_RAMP / P2_RAMP). Platforms and 2D label swatches follow the
 gray ramp. Verified in both light and dark color schemes.
+
+### T25. Idle camera weave ✅ done
+A gentle oscillating sway (azimuth + slight elevation) starts after ~2s of
+no interaction with the pointer off the canvas, easing in slowly and backing
+off fast when the player returns. Applied as frame-to-frame deltas through
+the same spherical coordinates OrbitControls uses, so it composes with
+manual orbiting. A "Camera drift" slider (0–1, default 0.35) scales the
+amplitude up to ~6°; 0 disables. Browser-verified: sway visible when idle at
+max drift, camera pixel-still while the pointer hovers the canvas.

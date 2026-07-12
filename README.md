@@ -17,7 +17,9 @@ every axis — opening sight lines so interior cells are visible and clickable.
 Elevation is encoded as lightness: cells and marks fade from near-white on
 the top layer to dark shades on the bottom (the flat-grid labels carry
 matching swatches), with a faint platform under each layer, so heights stay
-readable as marks accumulate. It mirrors the game live — hovering highlights
+readable as marks accumulate. When the cube is left alone for a moment, a
+gentle camera weave adds a parallax depth cue — it pauses the instant your
+pointer returns, and the "Camera drift" slider scales it (0 turns it off). It mirrors the game live — hovering highlights
 the same column in both views, and wins draw a line through the four cells in
 space. You can play in either view: clicking a cell in the cube places a mark
 (a ghost preview shows where), with the flat grids as the keyboard-accessible
