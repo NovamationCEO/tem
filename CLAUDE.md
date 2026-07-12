@@ -13,7 +13,10 @@ the WebGL 3D companion view (`src/Cube3D.tsx`, react-three-fiber + drei),
 and sprint 4 (`docs/sprint-4.md`) made it clickable via raycast picking
 (invisible hitboxes, drag-vs-click delta guard, ghost preview). Both views
 accept input and share hover state; the flat grids remain the accessible
-path. Online multiplayer is planned for later. Coordinate convention: flat board index = x + 4y + 16z, where z selects
+path. Online multiplayer is planned for later. An AI opponent is planned:
+`docs/ai-options.md` surveys the approaches (fixed heuristic → alpha-beta
+with bitboards → threat-space search) and the recommended roadmap; no AI
+code exists yet. Coordinate convention: flat board index = x + 4y + 16z, where z selects
 the layer grid; all 76 lines are generated programmatically in
 `src/game/lines.ts` (never hand-typed).
 
