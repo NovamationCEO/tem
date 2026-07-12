@@ -19,7 +19,7 @@ function App() {
   const [showThreats, setShowThreats] = useState(
     () => localStorage.getItem(THREATS_KEY) === '1',
   )
-  const [hovered, setHovered] = useState<{ x: number; y: number } | null>(null)
+  const [hovered, setHovered] = useState<number | null>(null)
   const game = currentState(history)
 
   const threatMap = useMemo(() => {

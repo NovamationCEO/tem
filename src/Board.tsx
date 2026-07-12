@@ -6,9 +6,11 @@ interface BoardProps {
   state: GameState
   /** Empty cells that complete four-in-a-row, by threatening player. */
   threats?: ReadonlyMap<number, readonly Player[]>
-  /** Hovered (x, y), shared with the 3D view; highlighted on every layer. */
-  hovered: { x: number; y: number } | null
-  onHover: (position: { x: number; y: number } | null) => void
+  /** Hovered cell index, shared with the 3D view. The whole (x, y) column
+   * highlights on every layer; the hovered cell itself gets a stronger
+   * target style. */
+  hovered: number | null
+  onHover: (index: number | null) => void
   onCellClick: (index: number) => void
 }
 
@@ -50,6 +52,7 @@ export function Board({
   const playing = state.status.kind === 'playing'
   const winningCells =
     state.status.kind === 'won' ? new Set(state.status.line) : null
+  const hoveredCoord = hovered === null ? null : indexToCoord(hovered)
 
   function handleKeyDown(event: React.KeyboardEvent, from: number) {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -91,7 +94,10 @@ export function Board({
                 cell === 2 && 'p2',
                 winningCells?.has(index) && 'win',
                 winningCells && !winningCells.has(index) && 'dim',
-                playing && hovered?.x === x && hovered?.y === y && 'hl',
+                playing &&
+                  hoveredCoord?.x === x &&
+                  hoveredCoord?.y === y &&
+                  (index === hovered ? 'hl-target' : 'hl'),
               ]
                 .filter(Boolean)
                 .join(' ')
@@ -139,10 +145,10 @@ export function Board({
                   tabIndex={index === focused ? 0 : -1}
                   onClick={() => onCellClick(index)}
                   onKeyDown={(event) => handleKeyDown(event, index)}
-                  onMouseEnter={() => onHover({ x, y })}
+                  onMouseEnter={() => onHover(index)}
                   onFocus={() => {
                     setFocused(index)
-                    onHover({ x, y })
+                    onHover(index)
                   }}
                   onBlur={() => onHover(null)}
                 >

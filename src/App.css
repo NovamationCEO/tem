@@ -163,6 +163,11 @@
   background: var(--cell-hl);
 }
 
+.cell.hl-target {
+  background: var(--cell-hl-target);
+  border-color: var(--text);
+}
+
 .cell.p1 {
   color: var(--p1);
   cursor: default;

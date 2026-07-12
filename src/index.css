@@ -5,6 +5,7 @@
   --border: #dcdae0;
   --cell-bg: #ffffff;
   --cell-hl: #efe9fb;
+  --cell-hl-target: #dccdf7;
   --win-bg: #e5f6ef;
   --p1: #7c3aed;
   --p2: #0f766e;
@@ -28,6 +29,7 @@
     --border: #33343e;
     --cell-bg: #1e1f27;
     --cell-hl: #322a45;
+    --cell-hl-target: #4c3e72;
     --win-bg: #143528;
     --p1: #a78bfa;
     --p2: #2dd4bf;
