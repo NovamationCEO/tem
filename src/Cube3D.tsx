@@ -1,19 +1,22 @@
 import { Line, OrbitControls, useCursor } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
-import { useState } from 'react'
+import { Canvas, useThree } from '@react-three/fiber'
+import { useEffect, useState } from 'react'
+import { DoubleSide } from 'three'
+import { LAYER_COLORS } from './colors.ts'
 import { SIZE, indexToCoord } from './game/coords.ts'
 import type { GameState } from './game/state.ts'
 
 // Mid-ramp colors that read on both light and dark canvas backgrounds.
 const P1_COLOR = '#8b5cf6'
 const P2_COLOR = '#14b8a6'
-const EMPTY_COLOR = '#8a8794'
 const WIN_COLOR = '#22c55e'
 const SPACING = 1.2
 
 /**
  * Board (x, y, z) → scene position. Layers stack vertically (layer 1 at the
- * bottom); `spread` (0–1) pulls them apart so interior cells become visible.
+ * bottom); `spread` (0–1) expands the whole lattice — every axis grows so
+ * sight lines open up for picking, with extra vertical separation so the
+ * layers stay visually distinct.
  */
 function cellPosition(
   index: number,
@@ -22,9 +25,9 @@ function cellPosition(
   const { x, y, z } = indexToCoord(index)
   const off = (SIZE - 1) / 2
   return [
-    (x - off) * SPACING,
-    (z - off) * SPACING * (1 + spread * 2),
-    (y - off) * SPACING,
+    (x - off) * SPACING * (1 + spread),
+    (z - off) * SPACING * (1 + spread * 1.5),
+    (y - off) * SPACING * (1 + spread),
   ]
 }
 
@@ -54,9 +57,12 @@ export function Cube3D({ state, hovered, onHover, onCellClick }: Cube3DProps) {
         <Canvas camera={{ position: [8.5, 4, 5], fov: 42 }}>
           <ambientLight intensity={0.9} />
           <directionalLight position={[5, 10, 6]} intensity={1.4} />
+          {Array.from({ length: SIZE }, (_, z) => (
+            <LayerPlatform key={z} z={z} spread={spread} />
+          ))}
           {Array.from({ length: SIZE ** 3 }, (_, index) => {
             const mark = state.board[index]
-            const { x, y } = indexToCoord(index)
+            const { x, y, z } = indexToCoord(index)
             const inHoveredColumn =
               hoveredCoord !== null &&
               hoveredCoord.x === x &&
@@ -69,12 +75,12 @@ export function Cube3D({ state, hovered, onHover, onCellClick }: Cube3DProps) {
                 ? P1_COLOR
                 : mark === 2
                   ? P2_COLOR
-                  : EMPTY_COLOR
+                  : LAYER_COLORS[z]
             const opacity =
               mark === null
                 ? inHoveredColumn
-                  ? 0.85
-                  : 0.3
+                  ? 0.9
+                  : 0.4
                 : winningSet && !isWin
                   ? 0.35
                   : 1
@@ -95,7 +101,7 @@ export function Cube3D({ state, hovered, onHover, onCellClick }: Cube3DProps) {
                     {mark === null ? (
                       <boxGeometry
                         args={
-                          inHoveredColumn ? [0.3, 0.3, 0.3] : [0.16, 0.16, 0.16]
+                          inHoveredColumn ? [0.32, 0.32, 0.32] : [0.2, 0.2, 0.2]
                         }
                       />
                     ) : (
@@ -130,7 +136,8 @@ export function Cube3D({ state, hovered, onHover, onCellClick }: Cube3DProps) {
               lineWidth={3}
             />
           )}
-          <OrbitControls enablePan={false} minDistance={5} maxDistance={16} />
+          <OrbitControls enablePan={false} minDistance={5} maxDistance={20} />
+          <CameraFit spread={spread} />
           <CursorHint active={playing && pointerInCell} />
         </Canvas>
       </div>
@@ -146,6 +153,29 @@ export function Cube3D({ state, hovered, onHover, onCellClick }: Cube3DProps) {
         />
       </label>
     </div>
+  )
+}
+
+/**
+ * Faint colored plane under each layer — the strong depth cue that keeps the
+ * lattice parseable once marks accumulate. No pointer handlers, so it never
+ * intercepts picking.
+ */
+function LayerPlatform({ z, spread }: { z: number; spread: number }) {
+  const off = (SIZE - 1) / 2
+  const y = (z - off) * SPACING * (1 + spread * 1.5) - 0.45
+  const size = (SIZE - 1) * SPACING * (1 + spread) + 0.9
+  return (
+    <mesh position={[0, y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[size, size]} />
+      <meshBasicMaterial
+        color={LAYER_COLORS[z]}
+        transparent
+        opacity={0.1}
+        depthWrite={false}
+        side={DoubleSide}
+      />
+    </mesh>
   )
 }
 
@@ -182,5 +212,14 @@ function Hitbox({ playing, onOver, onOut, onPick }: HitboxProps) {
 
 function CursorHint({ active }: { active: boolean }) {
   useCursor(active)
+  return null
+}
+
+/** Pull the camera back as the lattice expands so it stays framed. */
+function CameraFit({ spread }: { spread: number }) {
+  const camera = useThree((s) => s.camera)
+  useEffect(() => {
+    camera.position.setLength(10.6 + spread * 5)
+  }, [camera, spread])
   return null
 }

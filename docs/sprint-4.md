@@ -24,3 +24,12 @@ orbiting; that stays the intended mechanism.
 README/CLAUDE.md updated (3D is no longer view-only). Browser-verified:
 3D click places the correct mark, orbit drag places nothing, ghost preview
 and cross-view column highlight work, no console errors.
+
+### T23. Layer legibility and all-axis spread ✅ done
+Feedback: the lattice was hard to parse mid-game, and vertical-only spread
+didn't help mouse selection. Each layer now has a distinct hue
+(`src/colors.ts`: sky/amber/pink/red) applied to its empty cells and a faint
+platform plane beneath it, with matching swatches on the flat-grid layer
+labels. The spread slider expands all three axes (extra weight on vertical),
+and the camera auto-pulls back to keep the lattice framed. Browser-verified:
+an interior cell picked by mouse at spread 0.6.

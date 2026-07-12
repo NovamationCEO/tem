@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { LAYER_COLORS } from './colors.ts'
 import { SIZE, coordToIndex, indexToCoord } from './game/coords.ts'
 import type { GameState, Player } from './game/state.ts'
 
@@ -80,7 +81,14 @@ export function Board({
     <div className="board">
       {Array.from({ length: SIZE }, (_, z) => (
         <section key={z} aria-label={`Layer ${z + 1}`}>
-          <h2 className="layer-label">Layer {z + 1}</h2>
+          <h2 className="layer-label">
+            <span
+              className="layer-swatch"
+              style={{ background: LAYER_COLORS[z] }}
+              aria-hidden="true"
+            />
+            Layer {z + 1}
+          </h2>
           <div className="grid" onMouseLeave={() => onHover(null)}>
             {Array.from({ length: SIZE * SIZE }, (_, i) => {
               const x = i % SIZE

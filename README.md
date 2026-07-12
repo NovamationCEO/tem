@@ -12,8 +12,10 @@ move within a layer, `[` / `]` (or PageUp/PageDown) to switch layers,
 Enter/Space to place a mark.
 
 A rotatable WebGL view of the cube sits beside the flat grids: drag to orbit,
-scroll to zoom, and use the "Spread layers" slider to pull the four layers
-apart and see interior cells. It mirrors the game live — hovering highlights
+scroll to zoom, and use the "Spread layers" slider to expand the lattice on
+every axis — opening sight lines so interior cells are visible and clickable.
+Each layer has its own color (matching the swatches on the flat-grid labels)
+with a faint platform under it, so heights stay readable as marks accumulate. It mirrors the game live — hovering highlights
 the same column in both views, and wins draw a line through the four cells in
 space. You can play in either view: clicking a cell in the cube places a mark
 (a ghost preview shows where), with the flat grids as the keyboard-accessible
