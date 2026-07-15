@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "calibrate": "CALIBRATE=1 vitest run src/game/ai/calibrate.test.ts --disable-console-intercept",
     "typecheck": "tsc -b"
   },
   "dependencies": {

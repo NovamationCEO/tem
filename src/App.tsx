@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Board } from './Board.tsx'
 import { Cube3D } from './Cube3D.tsx'
 import { requestMove } from './game/ai/client.ts'
-import type { Level } from './game/ai/heuristic.ts'
+import type { Level } from './game/ai/index.ts'
 import {
   canUndo,
   currentState,
@@ -24,8 +24,9 @@ type Mode = 'hotseat' | 'ai'
 const LEVEL_NAMES: Record<Level, string> = {
   1: 'Beginner',
   2: 'Casual',
-  3: 'Challenging',
-  4: 'Expert',
+  3: 'Intermediate',
+  4: 'Advanced',
+  5: 'Expert',
 }
 
 function App() {
@@ -38,7 +39,7 @@ function App() {
   )
   const [level, setLevel] = useState<Level>(() => {
     const stored = Number(localStorage.getItem(LEVEL_KEY))
-    return stored >= 1 && stored <= 4 ? (stored as Level) : 3
+    return stored >= 1 && stored <= 5 ? (stored as Level) : 3
   })
   const [hovered, setHovered] = useState<number | null>(null)
   const game = currentState(history)
@@ -130,7 +131,7 @@ function App() {
                 changeLevel(Number(event.target.value) as Level)
               }
             >
-              {([1, 2, 3, 4] as const).map((l) => (
+              {([1, 2, 3, 4, 5] as const).map((l) => (
                 <option key={l} value={l}>
                   {LEVEL_NAMES[l]}
                 </option>

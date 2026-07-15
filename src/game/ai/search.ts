@@ -4,8 +4,11 @@ import type { GameState, Player } from '../state.ts'
 import { mulberry32, type Rand } from './random.ts'
 
 export interface SearchOptions {
-  budgetMs: number
-  maxDepth?: number
+  /**
+   * Fixed search depth in plies. Depth-limited (not time-limited) so play is
+   * deterministic and identical on every device; difficulty is chosen by depth.
+   */
+  maxDepth: number
   /** Pick uniformly among root moves within this score margin of the best. */
   jitter?: number
 }
@@ -99,12 +102,8 @@ interface Entry {
 }
 
 interface Ctx {
-  nodes: number
-  deadline: number
   tt: Map<number, Entry>
 }
-
-class SearchAbort extends Error {}
 
 function emptyCellOf(pos: Position, line: number): number {
   for (const cell of LINES[line]) {
@@ -195,11 +194,6 @@ function negamax(
   beta: number,
   ctx: Ctx,
 ): number {
-  ctx.nodes++
-  if ((ctx.nodes & 1023) === 0 && performance.now() > ctx.deadline) {
-    throw new SearchAbort()
-  }
-
   if (sideToMoveWins(pos)) return WIN_SCORE - ply
   if (pos.filled === CELL_COUNT) return 0
   if (ply >= MAX_PLY) return evaluate(pos)
@@ -250,9 +244,10 @@ function negamax(
 }
 
 /**
- * Iterative-deepening alpha-beta under a time budget. Returns the best move
- * from the last fully completed depth; with `jitter`, samples uniformly among
- * root moves scoring within the margin (never away from a proven win).
+ * Iterative-deepening alpha-beta to a fixed depth. Deepening isn't for a time
+ * budget here — it warms the transposition table and move ordering so the final
+ * depth searches fast. Returns the best move; with `jitter`, samples uniformly
+ * among root moves scoring within the margin (never away from a proven win).
  */
 export function searchBestMove(
   state: GameState,
@@ -263,11 +258,7 @@ export function searchBestMove(
     throw new Error('searchBestMove called on a finished game')
   }
   const pos = Position.from(state, state.status.turn)
-  const ctx: Ctx = {
-    nodes: 0,
-    deadline: performance.now() + options.budgetMs,
-    tt: new Map(),
-  }
+  const ctx: Ctx = { tt: new Map() }
 
   // Root uses the same win/forced-block restriction as inner nodes.
   const me = pos.turn - 1
@@ -283,26 +274,21 @@ export function searchBestMove(
   let bestScore = -Infinity
   let lastScores: { move: number; score: number }[] | null = null
 
-  for (let depth = 1; depth <= (options.maxDepth ?? 16); depth++) {
+  for (let depth = 1; depth <= options.maxDepth; depth++) {
     const scores: { move: number; score: number }[] = []
     let iterBest = rootMoves[0]
     let iterScore = -Infinity
     let alpha = -Infinity
-    try {
-      for (const move of rootMoves) {
-        pos.make(move)
-        const score = -negamax(pos, depth - 1, 1, -Infinity, -alpha, ctx)
-        pos.unmake(move)
-        scores.push({ move, score })
-        if (score > iterScore) {
-          iterScore = score
-          iterBest = move
-        }
-        if (score > alpha) alpha = score
+    for (const move of rootMoves) {
+      pos.make(move)
+      const score = -negamax(pos, depth - 1, 1, -Infinity, -alpha, ctx)
+      pos.unmake(move)
+      scores.push({ move, score })
+      if (score > iterScore) {
+        iterScore = score
+        iterBest = move
       }
-    } catch (error) {
-      if (error instanceof SearchAbort) break
-      throw error
+      if (score > alpha) alpha = score
     }
     bestMove = iterBest
     bestScore = iterScore

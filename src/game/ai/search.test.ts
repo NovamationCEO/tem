@@ -8,8 +8,8 @@ import { searchBestMove } from './search.ts'
 const play = (moves: readonly number[]): GameState =>
   moves.reduce(applyMove, newGame())
 
-/** Deterministic: effectively unlimited time, fixed depth. */
-const fixedDepth = (depth: number) => ({ budgetMs: 1e9, maxDepth: depth })
+/** Deterministic: fixed depth. */
+const fixedDepth = (depth: number) => ({ maxDepth: depth })
 
 describe('searchBestMove tactics', () => {
   it('takes an immediate win', () => {
@@ -48,7 +48,7 @@ describe('searchBestMove tactics', () => {
     let state = newGame()
     let moves = 0
     while (state.status.kind === 'playing') {
-      const move = searchBestMove(state, { budgetMs: 10, maxDepth: 4 }, rand)
+      const move = searchBestMove(state, { maxDepth: 4 }, rand)
       expect(state.board[move]).toBeNull()
       state = applyMove(state, move)
       moves++
@@ -68,7 +68,7 @@ describe('search strength', () => {
       while (state.status.kind === 'playing') {
         const move =
           state.status.turn === searchPlays
-            ? searchBestMove(state, { budgetMs: 30, maxDepth: 8 }, rand)
+            ? searchBestMove(state, { maxDepth: 5 }, rand)
             : pickMove(state, 4, rand)
         state = applyMove(state, move)
       }

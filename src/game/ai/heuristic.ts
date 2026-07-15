@@ -2,7 +2,8 @@ import { LINES, LINES_BY_CELL } from '../lines.ts'
 import type { GameState } from '../state.ts'
 import type { Rand } from './random.ts'
 
-export type Level = 1 | 2 | 3 | 4
+/** Internal tuning tier of the heuristic (not the game's difficulty ladder). */
+export type HeuristicLevel = 1 | 2 | 3 | 4
 
 interface LevelConfig {
   /** Probability of taking each tier when it exists. */
@@ -14,7 +15,7 @@ interface LevelConfig {
   temperature: number
 }
 
-export const LEVELS: Record<Level, LevelConfig> = {
+export const LEVELS: Record<HeuristicLevel, LevelConfig> = {
   1: { win: 0.6, block: 0.5, fork: 0.3, blockFork: 0.2, temperature: 40 },
   2: { win: 0.9, block: 0.8, fork: 0.6, blockFork: 0.5, temperature: 18 },
   3: { win: 1, block: 1, fork: 0.85, blockFork: 0.75, temperature: 8 },
@@ -96,7 +97,7 @@ function sampleByScore(
  * otherwise sample quiet moves by score. Lower levels obey the tiers with
  * lower probability and sample at higher temperature.
  */
-export function pickMove(state: GameState, level: Level, rand: Rand): number {
+export function pickMove(state: GameState, level: HeuristicLevel, rand: Rand): number {
   if (state.status.kind !== 'playing') {
     throw new Error('pickMove called on a finished game')
   }
@@ -128,7 +129,7 @@ export function pickMove(state: GameState, level: Level, rand: Rand): number {
  */
 export function chooseMove(
   state: GameState,
-  level: Level,
+  level: HeuristicLevel,
   rand: Rand = Math.random,
 ): Promise<number> {
   return Promise.resolve(pickMove(state, level, rand))
