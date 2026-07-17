@@ -13,12 +13,18 @@ the WebGL 3D companion view (`src/Cube3D.tsx`, react-three-fiber + drei),
 and sprint 4 (`docs/sprint-4.md`) made it clickable via raycast picking
 (invisible hitboxes, drag-vs-click delta guard, ghost preview). Both views
 accept input and share hover state; the flat grids remain the accessible
-path. Online multiplayer is planned for later. Sprints 5–6 (`docs/sprint-5.md`,
-`docs/sprint-6.md`) added the AI opponent in `src/game/ai/`: levels 1–2 use
-the tiered heuristic (`heuristic.ts`), levels 3–4 use time-budgeted
-alpha-beta (`search.ts`) behind a Web Worker (`client.ts`/`worker.ts`);
-seeded RNG throughout. The roadmap in `docs/ai-options.md` continues with
-threat-space search (phase 3). Coordinate convention: flat board index = x + 4y + 16z, where z selects
+path. Online multiplayer is planned for later. Sprints 5–7 (`docs/sprint-5.md`
+… `docs/sprint-7.md`) added the AI opponent in `src/game/ai/`, completing the
+`docs/ai-options.md` roadmap. The difficulty ladder has six rungs, defined by
+the single `LADDER` table in `ai/index.ts`: levels 1–3 use the tiered
+heuristic (`heuristic.ts`), 4–6 use alpha-beta (`search.ts`) behind a Web
+Worker (`client.ts`/`worker.ts`), and level 6 also consults the threat-space
+oracle (`threat.ts`). Seeded RNG throughout. The search is **depth-limited,
+never time-limited**, so a level plays identically on every machine; level 6
+adds a deterministic node budget to bound worst-case cost. Rung strengths are
+measured by self-play Elo (`selfplay.ts`, `npm run calibrate` — the gated
+regression harness for any engine change; run it before and after).
+Coordinate convention: flat board index = x + 4y + 16z, where z selects
 the layer grid; all 76 lines are generated programmatically in
 `src/game/lines.ts` (never hand-typed).
 
@@ -35,6 +41,9 @@ the layer grid; all 76 lines are generated programmatically in
 - `npm test` — run unit tests once (`npm run test:watch` for watch mode)
 - `npm run lint` — ESLint
 - `npm run typecheck` — typecheck only
+- `npm run calibrate` — self-play Elo report for the AI ladder. Skipped by
+  `npm test`; takes tens of minutes. `CALIBRATE_GAMES=n` sets games per
+  pairing (default 100).
 
 ## Architecture
 

@@ -27,6 +27,7 @@ const LEVEL_NAMES: Record<Level, string> = {
   3: 'Intermediate',
   4: 'Advanced',
   5: 'Expert',
+  6: 'Perfect',
 }
 
 function App() {
@@ -39,7 +40,7 @@ function App() {
   )
   const [level, setLevel] = useState<Level>(() => {
     const stored = Number(localStorage.getItem(LEVEL_KEY))
-    return stored >= 1 && stored <= 5 ? (stored as Level) : 3
+    return stored >= 1 && stored <= 6 ? (stored as Level) : 3
   })
   const [hovered, setHovered] = useState<number | null>(null)
   const game = currentState(history)
@@ -131,7 +132,7 @@ function App() {
                 changeLevel(Number(event.target.value) as Level)
               }
             >
-              {([1, 2, 3, 4, 5] as const).map((l) => (
+              {([1, 2, 3, 4, 5, 6] as const).map((l) => (
                 <option key={l} value={l}>
                   {LEVEL_NAMES[l]}
                 </option>

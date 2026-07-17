@@ -156,6 +156,13 @@ Replace tier-skipping with two modern, smoother knobs:
 
 ## Recommended roadmap for this repo
 
+> **Status:** sprints 1–3 of this roadmap are done (repo sprints 5–7). See
+> `docs/sprint-7.md` for the calibrated ladder and two corrections to the
+> analysis below: option 4's oracle turned out to be worth only ~30 Elo over
+> plain alpha-beta at equal depth — option 2's forced-reply extensions already
+> resolve check chains — and difficulty ended up keyed to search *depth*, not
+> the time budgets suggested here, so play is identical on every machine.
+
 1. **AI sprint 1:** Option 1 (fixed heuristic) + difficulty via temperature +
    guardrails. Pure functions in `src/game/ai/`, seeded RNG for testable
    determinism, exhaustive unit tests (always-wins, always-blocks,

@@ -3,6 +3,7 @@ import { newGame, type GameState } from '../state.ts'
 import { pickMove, type HeuristicLevel } from './heuristic.ts'
 import { mulberry32, type Rand } from './random.ts'
 import { searchBestMove } from './search.ts'
+import { findForcedWin } from './threat.ts'
 
 /**
  * Self-play calibration harness. Pure and headless — no worker, no DOM — so
@@ -39,6 +40,24 @@ export function searchAgent(depth: number, jitter = 0): Agent {
     name: `search-d${depth}${suffix}`,
     pick: (state, rand) =>
       searchBestMove(state, { maxDepth: depth, jitter }, rand),
+  }
+}
+
+/**
+ * The level-6 policy: consult the threat-space oracle first (play a proven
+ * forced win straight from the chain), else search up to `depth`, bounded by an
+ * optional node budget. Mirrors `pickMoveForLevel` so calibration measures the
+ * shipped rung exactly.
+ */
+export function oracleAgent(depth: number, maxNodes?: number): Agent {
+  const budget = maxNodes ? `-n${Math.round(maxNodes / 1000)}k` : ''
+  return {
+    name: `oracle-d${depth}${budget}`,
+    pick: (state, rand) => {
+      const forced = findForcedWin(state)
+      if (forced) return forced[0]
+      return searchBestMove(state, { maxDepth: depth, maxNodes }, rand)
+    },
   }
 }
 

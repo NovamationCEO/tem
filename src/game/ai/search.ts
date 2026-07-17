@@ -5,10 +5,19 @@ import { mulberry32, type Rand } from './random.ts'
 
 export interface SearchOptions {
   /**
-   * Fixed search depth in plies. Depth-limited (not time-limited) so play is
+   * Depth ceiling in plies. The search is depth- (not time-) limited so play is
    * deterministic and identical on every device; difficulty is chosen by depth.
+   * With `maxNodes` set, this is just a ceiling and the node budget is the real
+   * limiter.
    */
   maxDepth: number
+  /**
+   * Optional node budget: iterative deepening stops once this many nodes are
+   * visited, returning the best move from the last completed depth. Node counts
+   * are deterministic, so this bounds worst-case cost without breaking
+   * cross-machine reproducibility. Omit for a pure depth limit.
+   */
+  maxNodes?: number
   /** Pick uniformly among root moves within this score margin of the best. */
   jitter?: number
 }
@@ -40,7 +49,7 @@ const ZOBRIST_HI: Uint32Array[] = []
 }
 
 /** Search position with O(lines-through-cell) make/unmake. */
-class Position {
+export class Position {
   readonly board = new Int8Array(CELL_COUNT) // 0 empty, 1, 2
   /** counts[p][line] = marks player p+1 has on that line. */
   readonly counts = [new Uint8Array(LINE_COUNT), new Uint8Array(LINE_COUNT)]
@@ -103,9 +112,13 @@ interface Entry {
 
 interface Ctx {
   tt: Map<number, Entry>
+  nodes: number
+  maxNodes: number
 }
 
-function emptyCellOf(pos: Position, line: number): number {
+class SearchAbort extends Error {}
+
+export function emptyCellOf(pos: Position, line: number): number {
   for (const cell of LINES[line]) {
     if (pos.board[cell] === 0) return cell
   }
@@ -194,6 +207,8 @@ function negamax(
   beta: number,
   ctx: Ctx,
 ): number {
+  if (++ctx.nodes > ctx.maxNodes) throw new SearchAbort()
+
   if (sideToMoveWins(pos)) return WIN_SCORE - ply
   if (pos.filled === CELL_COUNT) return 0
   if (ply >= MAX_PLY) return evaluate(pos)
@@ -244,10 +259,12 @@ function negamax(
 }
 
 /**
- * Iterative-deepening alpha-beta to a fixed depth. Deepening isn't for a time
- * budget here — it warms the transposition table and move ordering so the final
- * depth searches fast. Returns the best move; with `jitter`, samples uniformly
- * among root moves scoring within the margin (never away from a proven win).
+ * Iterative-deepening alpha-beta, bounded by `maxDepth` and optionally a
+ * `maxNodes` budget. Deepening warms the transposition table and move ordering
+ * so the deepest completed depth searches fast; if the node budget runs out
+ * mid-depth, the best move from the last completed depth is returned. With
+ * `jitter`, samples uniformly among root moves scoring within the margin (never
+ * away from a proven win).
  */
 export function searchBestMove(
   state: GameState,
@@ -258,7 +275,11 @@ export function searchBestMove(
     throw new Error('searchBestMove called on a finished game')
   }
   const pos = Position.from(state, state.status.turn)
-  const ctx: Ctx = { tt: new Map() }
+  const ctx: Ctx = {
+    tt: new Map(),
+    nodes: 0,
+    maxNodes: options.maxNodes ?? Infinity,
+  }
 
   // Root uses the same win/forced-block restriction as inner nodes.
   const me = pos.turn - 1
@@ -279,16 +300,22 @@ export function searchBestMove(
     let iterBest = rootMoves[0]
     let iterScore = -Infinity
     let alpha = -Infinity
-    for (const move of rootMoves) {
-      pos.make(move)
-      const score = -negamax(pos, depth - 1, 1, -Infinity, -alpha, ctx)
-      pos.unmake(move)
-      scores.push({ move, score })
-      if (score > iterScore) {
-        iterScore = score
-        iterBest = move
+    try {
+      for (const move of rootMoves) {
+        pos.make(move)
+        const score = -negamax(pos, depth - 1, 1, -Infinity, -alpha, ctx)
+        pos.unmake(move)
+        scores.push({ move, score })
+        if (score > iterScore) {
+          iterScore = score
+          iterBest = move
+        }
+        if (score > alpha) alpha = score
       }
-      if (score > alpha) alpha = score
+    } catch (error) {
+      // Node budget exhausted: discard this incomplete depth, keep the last.
+      if (error instanceof SearchAbort) break
+      throw error
     }
     bestMove = iterBest
     bestScore = iterScore

@@ -2,6 +2,7 @@ import { describe, it } from 'vitest'
 import {
   formatLadder,
   heuristicAgent,
+  oracleAgent,
   roundRobin,
   searchAgent,
   type Agent,
@@ -21,17 +22,15 @@ import {
  * wall-clock `budgetMs` afterwards by timing those depths on target hardware.
  */
 
-// The field to measure. Heuristic levels 1–2 are the shipped weak rungs; the
-// search depths bracket the current level-3/4 time budgets. Edit freely.
+// The six shipped rungs (see LADDER in index.ts), measured on one scale so the
+// printed Elo maps directly to the difficulty levels players pick.
 const ROSTER: Agent[] = [
-  heuristicAgent(1),
-  heuristicAgent(2),
-  heuristicAgent(3),
-  heuristicAgent(4),
-  searchAgent(1),
-  searchAgent(2),
-  searchAgent(3),
-  searchAgent(4),
+  heuristicAgent(1), // level 1
+  heuristicAgent(2), // level 2
+  heuristicAgent(3), // level 3
+  searchAgent(2), //    level 4
+  searchAgent(4), //    level 5
+  oracleAgent(8, 500_000), // level 6
 ]
 
 // Read env without depending on @types/node (the app tsconfig omits it).
@@ -60,6 +59,6 @@ describe.runIf(env.CALIBRATE)('AI ladder calibration', () => {
       })
       console.log(`\n${formatLadder(result)}\n`)
     },
-    10 * 60_000,
+    180 * 60_000,
   )
 })
